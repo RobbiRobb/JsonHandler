@@ -1,0 +1,10 @@
+{
+	"@metadata": {
+		"authors": [ "RobbiRobb" ]
+	},
+	"jsonhandler_page_not_found": "Can't read page: $1 does not exist.",
+	"jsonhandler_no_properties": "No properties set.",
+	"jsonhandler_error_decoding_page": "Error decoding JSON: $1 could not be decoded.",
+	"jsonhandler_could_not_access_property": "Could not access property: $1 on $2.",
+	"jsonhandler_not_string": "Properties don't return string on $1."
+}

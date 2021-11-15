@@ -1,0 +1,24 @@
+{
+    "name": "JsonHandler",
+    "version": "1.0.0",
+    "author": "RobbiRobb",
+    "license-name": "GPL-2.0-or-later",
+    "type": "parserhook",
+	"AutoloadClasses": {
+        "JsonHandlerHooks": "includes/JsonHandlerHooks.php",
+        "JsonHandlerContent": "includes/JsonHandlerContent.php",
+        "JsonHandlerException": "includes/JsonHandlerException.php",
+        "JsonHandler": "includes/JsonHandler.php"
+    },
+	"ExtensionMessagesFiles": {
+		"JsonHandlerMagic": "JsonHandler.i18n.magic.php"
+	},
+	"Hooks": {
+		"ParserFirstCallInit": "JsonHandlerHooks::onParserFirstCallInit"
+	},
+	"MessagesDirs": {
+		"JsonHandler": [
+			"i18n"
+		]
+	}
+}
