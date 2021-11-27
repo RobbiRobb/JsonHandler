@@ -29,13 +29,13 @@ class JsonHandlerContent {
 		if(array_key_exists($title, self::$content)) {
 			return self::$content[$title];
 		} else {
-			$revision = Revision::newFromTitle(Title::newFromText($title));
+			$page = WikiPage::factory(Title::newFromText($title));
 			
-			if(is_null($revision)) {
+			if(!$page->exists()) {
 				throw new Exception('wiki page '.$title.' not found');
 			}
 			
-			self::$content[$title] = $revision->getContent()->getNativeData();
+			self::$content[$title] = ContentHandler::getContentText($page->getContent());
 			
 			return self::$content[$title];
 		}

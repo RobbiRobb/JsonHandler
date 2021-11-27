@@ -18,7 +18,7 @@
 class JsonHandler {
 	
 	/**
-	* {{#json: json-page -> property [-> properties]}}
+	* {{#json: json-page -> property [-> properties][|arguments]}}
 	* tries to process json expression and handels errors
 	*
 	* @param Parser $parser
@@ -41,6 +41,8 @@ class JsonHandler {
 	* @param array $args
 	*/
 	private static function processJson(Parser $parser, PPFrame $frame, array $args) {
+		$parameters = array_slice($args, 1);
+		
 		$args = explode("->", $frame->expand($args[0]));
 		$title = trim($args[0]);
 		
@@ -83,7 +85,13 @@ class JsonHandler {
 		if(is_array($json) || is_object($json)) {
 			throw new JsonHandlerException("jsonhandler_not_string", $trace);
 		} else {
-			return $json;
+			$paramCount = count($parameters);
+			
+			for($i = 0; $i < $paramCount; $i++) {
+				$json = str_replace('$' . ($i + 1), $frame->expand($parameters[$i]), $json);
+			}
+			
+			return $parser->internalParse($json);
 		}
 	}
 }
