@@ -23,12 +23,17 @@ class JsonHandlerContent {
 	* get content of page from title. Uses array to prevent loading of same content multiple times on one page
 	*
 	* @param String $title
+	* @param Parser $parser
 	* @throws Exception
 	*/
-	public static function getContent(String $title) {
+	public static function getContent(String $title, Parser &$parser) {
 		if(array_key_exists($title, self::$content)) {
 			return self::$content[$title];
 		} else {
+			if(!$parser->incrementExpensiveFunctionCount()) {
+				return false;
+			}
+			
 			$page = WikiPage::factory(Title::newFromText($title));
 			
 			if(!$page->exists()) {

@@ -41,16 +41,20 @@ class JsonHandler {
 	* @param array $args
 	*/
 	private static function processJson(Parser $parser, PPFrame $frame, array $args) {
-		$parameters = array_slice($args, 1);
-		
 		$args = explode("->", $frame->expand($args[0]));
 		$title = trim($args[0]);
 		
 		try {
-			$json = json_decode(JsonHandlerContent::getContent($title));
+			$content = JsonHandlerContent::getContent($title, $parser);
 		} catch(Exception $e) {
 			throw new JsonHandlerException("jsonhandler_page_not_found", $title);
 		}
+		
+		if(!$content) {
+			throw new JsonHandlerException("jsonhandler_too_many_expensive_functions", $title);
+		}
+		
+		$json = json_decode($content);
 		$trace = $title;
 		$args = array_slice($args, 1);
 		
@@ -65,19 +69,46 @@ class JsonHandler {
 		foreach($args as $arg) {
 			$arg = trim($arg);
 			$trace .= "->" . $arg;
+			$suppressErors = false;
+			$isNullable = false;
+			
+			if($arg === "*") {
+				throw new JsonHandlerException("jsonhandler_debug", [$trace, $parser->internalParse(json_encode($json))]);
+			}
+			if(substr($arg, 0, 1) === "@") {
+				$arg = substr($arg, 1);
+				$suppressErors = true;
+			}
+			if(substr($arg, 0, 1) === "?") {
+				$arg = substr($arg, 1);
+				$isNullable = true;
+			}
+			
 			if(is_array($json)) {
 				if(isset($json[$arg])) {
 					$json = $json[$arg];
 				} else {
+					if($suppressErors) {
+						return "";
+					}
 					throw new JsonHandlerException("jsonhandler_could_not_access_property", [$arg, $trace]);
 				}
 			} else if(is_object($json)) {
 				if(property_exists($json, $arg)) {
 					$json = $json->$arg;
 				} else {
+					if($suppressErors) {
+						return "";
+					}
 					throw new JsonHandlerException("jsonhandler_could_not_access_property", [$arg, $trace]);
 				}
 			} else {
+				if($suppressErors) {
+					return "";
+				}
+				if($isNullable) {
+					return $parser->internalParse($json);
+				}
 				throw new JsonHandlerException("jsonhandler_could_not_access_property", [$arg, $trace]);
 			}
 		}
@@ -85,12 +116,6 @@ class JsonHandler {
 		if(is_array($json) || is_object($json)) {
 			throw new JsonHandlerException("jsonhandler_not_string", $trace);
 		} else {
-			$paramCount = count($parameters);
-			
-			for($i = 0; $i < $paramCount; $i++) {
-				$json = str_replace('$' . ($i + 1), $frame->expand($parameters[$i]), $json);
-			}
-			
 			return $parser->internalParse($json);
 		}
 	}

@@ -2,6 +2,7 @@
     "name": "JsonHandler",
     "version": "1.0.0",
     "author": "RobbiRobb",
+	"manifest_version": 2,
     "license-name": "GPL-2.0-or-later",
     "type": "parserhook",
 	"AutoloadClasses": {
